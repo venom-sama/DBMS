@@ -1,3 +1,26 @@
+                                                    Problem Statement:-1
+                                                    Account(Acc_no, branch_name,balance)
+                                                    branch(branch_name,branch_city,assets_amt)
+                                                    customer(cust_name,cust_street,cust_city)
+                                                    Depositor(cust_name,acc_no)
+                                                    Loan(Acc_no,loan_no,branch_name,amount)
+                                                    Borrower(cust_name,loan_no)
+                                                    Solve following query:
+                                                    1. Create above tables with appropriate constraints like primary key, foreign key,
+                                                    check constrains, not null etc.
+                                                    2. Find the names of all branches in loan relation.
+                                                    3. Find all loan numbers for loans made at Pimpri Branch with loan amount > 12000.
+                                                    4. Find all customers who have a loan from bank. Find their names, loan_no and loan
+                                                    amount.
+                                                    5. List all customers in alphabetical order who have loan from Akurdi branch.
+                                                    6. Find all customers who have an account or loan or both at bank.
+                                                    7. Find all customers who have both account and loan at bank.
+                                                    8. Find average account balance at Pimpri branch.
+                                                    9. Find the average account balance at each branch
+                                                    10. Find the branches where average account balance > 12000.
+                                                    11. Calculate total loan amount given by bank.
+
+
 CREATE DATABASE bank_db;
 USE bank_db;
 CREATE TABLE branch (
