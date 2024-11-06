@@ -1,0 +1,161 @@
+use ass5;
+db.Books.insertMany([
+  {
+    title: "Power of Subconscious Mind",
+    author: "Joseph",
+    genre: "Sci-Fi",
+    price: 150,
+    publish_date: "23.1.2021"
+  },
+  {
+    title: "Rich Dad Poor Dad",
+    author: "Robert",
+    genre: "Non Fiction",
+    price: 500,
+    publish_date: "12.3.2012"
+  },
+  {
+    title: "The Hundred",
+    author: "Sachin",
+    price: 1000,
+    publish_date: "06.8.2023"
+  },
+  {
+    title: "Playing it my way",
+    author: "Sachin",
+    genre: "Fiction",
+    price: 1200,
+    publish_date: "6.4.2020"
+  }
+]);
+db.Books.insertMany([
+  {
+    title: "ABD",
+    author: "ab de Villiers",
+    genre: "Mystery",
+    price: 1500,
+    publish_date: "1.3.2015"
+  }
+]);
+db.Books.aggregate([{ $group: { _id: null, avgprice: { $avg: "$price" } } }]);
+db.Books.insertMany([
+  {
+    title: "RDBMS",
+    author: "John",
+    genre: "Fiction",
+    price: 2000,
+    publish_date: "1.3.2015"
+  }
+]);
+db.Books.aggregate([{ $group: { _id: "$genre", mostexpensiveBook: { $max: "$price" } } }]);
+db.Books.aggregate([{ $group: { _id: "$genre", BookCount: { $sum: 1 } } }]);
+db.Books.aggregate([{ $group: { _id: "$author", maxwrittenBooks: { $sum: 1 } } }]);
+db.Books.aggregate([{ $sort: { publish_date: -1 } }]);
+db.Books.aggregate([{ $sort: { price: 1 } }]);
+db.Books.createIndex({ title: 1 });
+db.Books.getIndexes();
+
+
+
+
+
+
+
+//Explanation
+
+This code demonstrates various MongoDB operations in a `Books` collection, including inserting documents, calculating aggregate values, sorting, and creating indexes. Let’s go through each part:
+
+### 1. Database and Collection Setup
+
+1. **Switch to Database**:
+   ```javascript
+   use ass5;
+   ```
+   - Switches to the `ass5` database, creating it if it doesn’t already exist.
+
+2. **Insert Documents into `Books` Collection**:
+   ```javascript
+   db.Books.insertMany([
+     { title: "Power of Subconscious Mind", author: "Joseph", genre: "Sci-Fi", price: 150, publish_date: "23.1.2021" },
+     { title: "Rich Dad Poor Dad", author: "Robert", genre: "Non Fiction", price: 500, publish_date: "12.3.2012" },
+     { title: "The Hundred", author: "Sachin", price: 1000, publish_date: "06.8.2023" },
+     { title: "Playing it my way", author: "Sachin", genre: "Fiction", price: 1200, publish_date: "6.4.2020" }
+   ]);
+   ```
+   - Adds multiple books to the `Books` collection, with fields:
+     - `title`: Book title
+     - `author`: Author's name
+     - `genre`: Book genre (some records may not have this field)
+     - `price`: Price of the book
+     - `publish_date`: Date of publication
+
+3. **Insert Additional Document**:
+   ```javascript
+   db.Books.insertMany([
+     { title: "ABD", author: "ab de Villiers", genre: "Mystery", price: 1500, publish_date: "1.3.2015" }
+   ]);
+   ```
+   - Adds a new book, `"ABD"`, with specific attributes, as a separate operation.
+
+### 2. Aggregation Operations
+
+1. **Calculate Average Price of All Books**:
+   ```javascript
+   db.Books.aggregate([{ $group: { _id: null, avgprice: { $avg: "$price" } } }]);
+   ```
+   - Aggregates all documents in `Books` to calculate the average price (`$avg`) of books.
+   - `_id: null` groups all documents into a single group for the average calculation, resulting in a single result with `avgprice`.
+
+2. **Insert Another Document**:
+   ```javascript
+   db.Books.insertMany([
+     { title: "RDBMS", author: "John", genre: "Fiction", price: 2000, publish_date: "1.3.2015" }
+   ]);
+   ```
+   - Adds another book document, `"RDBMS"`, by author `"John"`.
+
+3. **Find Most Expensive Book by Genre**:
+   ```javascript
+   db.Books.aggregate([{ $group: { _id: "$genre", mostexpensiveBook: { $max: "$price" } } }]);
+   ```
+   - Groups books by `genre` and finds the highest price (`$max`) within each genre, resulting in the most expensive book for each genre.
+
+4. **Count Books by Genre**:
+   ```javascript
+   db.Books.aggregate([{ $group: { _id: "$genre", BookCount: { $sum: 1 } } }]);
+   ```
+   - Groups books by `genre` and counts (`$sum: 1`) the number of books in each genre, resulting in a document for each genre with the total book count.
+
+5. **Count Books by Each Author**:
+   ```javascript
+   db.Books.aggregate([{ $group: { _id: "$author", maxwrittenBooks: { $sum: 1 } } }]);
+   ```
+   - Groups books by `author` and counts the number of books written by each author.
+
+### 3. Sorting Operations
+
+1. **Sort Books by Publish Date (Newest to Oldest)**:
+   ```javascript
+   db.Books.aggregate([{ $sort: { publish_date: -1 } }]);
+   ```
+   - Sorts the `Books` collection by `publish_date` in descending order (`-1`), showing the most recently published books first.
+
+2. **Sort Books by Price (Lowest to Highest)**:
+   ```javascript
+   db.Books.aggregate([{ $sort: { price: 1 } }]);
+   ```
+   - Sorts the `Books` collection by `price` in ascending order (`1`), showing the cheapest books first.
+
+### 4. Indexing
+
+1. **Create an Index on the `title` Field**:
+   ```javascript
+   db.Books.createIndex({ title: 1 });
+   ```
+   - Creates an ascending index on the `title` field, which helps improve the performance of queries that search by book title.
+
+2. **View All Indexes**:
+   ```javascript
+   db.Books.getIndexes();
+   ```
+   - Retrieves a list of all indexes on the `Books` collection, showing each index and the fields it covers.

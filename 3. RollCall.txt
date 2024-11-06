@@ -1,0 +1,161 @@
+create database rollcal;
+use rollcal;
+create table oldRollCall(rno int primary key,name varchar(20));
+insert into oldRollCall values(1,"ABC"),(2,"XYZ"),(3,"PQR");
+select * from oldRollCall;
+create table newRollCall(rno int,name varchar(20));
+DELIMITER //
+CREATE PROCEDURE Merge()
+BEGIN
+DECLARE done INT DEFAULT FALSE;
+DECLARE rollno INT;
+DECLARE Sname VARCHAR(20);
+DECLARE c1 CURSOR FOR SELECT rno, name FROM oldRollCall;
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+OPEN c1;
+read_loop: LOOP
+FETCH c1 INTO rollno, Sname;
+IF done THEN
+LEAVE read_loop;
+END IF;
+IF NOT EXISTS (SELECT 1 FROM newRollCall WHERE rno = rollno AND name = Sname) THEN
+       INSERT INTO newRollCall (rno, name) VALUES (rollno, Sname);
+       END IF;
+       END LOOP;
+       CLOSE c1;
+END;
+//
+DELIMITER ;
+call Merge();
+select * from oldRollCall;
+select * from newRollCall;
+
+
+
+
+//Explanation 
+
+This code creates a database `rollcal` and includes a stored procedure to copy data from one table (`oldRollCall`) to another (`newRollCall`) without duplicating entries. Here’s a step-by-step breakdown:
+
+### 1. Database and Table Setup
+1. **Create Database**:
+   ```sql
+   create database rollcal;
+   use rollcal;
+   ```
+   - Creates a new database named `rollcal` and sets it as the active database.
+
+2. **Create `oldRollCall` Table**:
+   ```sql
+   create table oldRollCall(rno int primary key, name varchar(20));
+   ```
+   - Defines a table `oldRollCall` with two columns:
+     - `rno`: An integer for the roll number, set as the primary key.
+     - `name`: A string for the name of the student.
+
+3. **Insert Sample Data**:
+   ```sql
+   insert into oldRollCall values(1,"ABC"),(2,"XYZ"),(3,"PQR");
+   ```
+   - Inserts three records into `oldRollCall` with sample roll numbers and names.
+
+4. **View Data in `oldRollCall`**:
+   ```sql
+   select * from oldRollCall;
+   ```
+   - Displays all rows in `oldRollCall`.
+
+5. **Create `newRollCall` Table**:
+   ```sql
+   create table newRollCall(rno int, name varchar(20));
+   ```
+   - Defines another table `newRollCall` with columns:
+     - `rno`: Stores the roll number (not set as primary key here).
+     - `name`: Stores the name of the student.
+
+### 2. Stored Procedure `Merge`
+The stored procedure `Merge` copies each record from `oldRollCall` to `newRollCall` if it does not already exist in `newRollCall`.
+
+1. **Define Delimiter**:
+   ```sql
+   DELIMITER //
+   ```
+   - Changes the delimiter to `//` to allow defining a multi-line procedure.
+
+2. **Create `Merge` Procedure**:
+   ```sql
+   CREATE PROCEDURE Merge()
+   BEGIN
+   ```
+   - Defines a procedure named `Merge` without any input parameters.
+
+3. **Declare Variables**:
+   ```sql
+   DECLARE done INT DEFAULT FALSE;
+   DECLARE rollno INT;
+   DECLARE Sname VARCHAR(20);
+   ```
+   - Declares variables to control the loop:
+     - `done`: A flag to signal when there are no more records to fetch, initialized to `FALSE`.
+     - `rollno` and `Sname`: Used to store the roll number and name values fetched from the cursor.
+
+4. **Define Cursor and Handler**:
+   ```sql
+   DECLARE c1 CURSOR FOR SELECT rno, name FROM oldRollCall;
+   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+   ```
+   - Declares a cursor `c1` that selects `rno` and `name` from `oldRollCall`.
+   - Declares a handler that sets `done` to `TRUE` when there are no more records in the cursor.
+
+5. **Open Cursor and Loop Through Records**:
+   ```sql
+   OPEN c1;
+   read_loop: LOOP
+       FETCH c1 INTO rollno, Sname;
+       IF done THEN
+           LEAVE read_loop;
+       END IF;
+   ```
+   - Opens the cursor `c1` to read data.
+   - Starts a loop named `read_loop`, fetching `rno` and `name` values into `rollno` and `Sname`.
+   - Checks if `done` is `TRUE`, signaling the end of records. If `TRUE`, exits the loop.
+
+6. **Insert Unique Records into `newRollCall`**:
+   ```sql
+   IF NOT EXISTS (SELECT 1 FROM newRollCall WHERE rno = rollno AND name = Sname) THEN
+       INSERT INTO newRollCall (rno, name) VALUES (rollno, Sname);
+   END IF;
+   ```
+   - Checks if the record already exists in `newRollCall` using an `IF NOT EXISTS` condition.
+   - If the record does not exist, it inserts the `rollno` and `Sname` into `newRollCall`.
+
+7. **Close Cursor and End Procedure**:
+   ```sql
+   END LOOP;
+   CLOSE c1;
+   END;
+   ```
+   - Closes the cursor and ends the procedure definition.
+
+8. **Reset Delimiter**:
+   ```sql
+   DELIMITER ;
+   ```
+   - Resets the delimiter back to `;`.
+
+### 3. Executing the Procedure and Displaying Results
+1. **Call the `Merge` Procedure**:
+   ```sql
+   call Merge();
+   ```
+   - Executes the `Merge` procedure, transferring records from `oldRollCall` to `newRollCall` if they are not already present.
+
+2. **Display Data in Both Tables**:
+   ```sql
+   select * from oldRollCall;
+   select * from newRollCall;
+   ```
+   - Displays the contents of both `oldRollCall` and `newRollCall` to verify the procedure’s effect.
+
+### Summary
+The `Merge` procedure copies data from `oldRollCall` to `newRollCall` only if the record does not already exist in `newRollCall`, effectively merging records without duplication.

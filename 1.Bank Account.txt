@@ -1,0 +1,297 @@
+CREATE DATABASE bank_db;
+USE bank_db;
+CREATE TABLE branch (
+    branch_name VARCHAR(50) PRIMARY KEY,
+    branch_city VARCHAR(50) NOT NULL,
+    assets_amt DECIMAL(10, 2) NOT NULL
+);
+CREATE TABLE customer (
+    cust_name VARCHAR(50) PRIMARY KEY,
+    cust_street VARCHAR(100),
+    cust_city VARCHAR(50)
+);
+CREATE TABLE account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    balance DECIMAL(10, 2) NOT NULL CHECK (balance >= 0),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+CREATE TABLE depositor (
+    cust_name VARCHAR(50),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES account(Acc_no)
+);
+CREATE TABLE loan (
+    Acc_no INT,
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(50),
+    amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+    FOREIGN KEY (Acc_no) REFERENCES account(Acc_no),
+    FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+);
+CREATE TABLE borrower (
+    cust_name VARCHAR(50),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES loan(loan_no)
+);
+INSERT INTO branch (branch_name, branch_city, assets_amt) VALUES
+('Pimpri', 'Pune', 5000000.00),
+('Akurdi', 'Pune', 4000000.00),
+('Baner', 'Pune', 3500000.00);
+INSERT INTO customer (cust_name, cust_street, cust_city) VALUES
+('John Doe', '123 Elm St', 'Pune'),
+('Jane Smith', '456 Oak St', 'Mumbai'),
+('David Lee', '789 Pine St', 'Delhi');
+INSERT INTO account (Acc_no, branch_name, balance) VALUES
+(1001, 'Pimpri', 15000.00),
+(1002, 'Akurdi', 12000.00),
+(1003, 'Baner', 18000.00);
+INSERT INTO depositor (cust_name, acc_no) VALUES
+('John Doe', 1001),
+('Jane Smith', 1002),
+('David Lee', 1003);
+INSERT INTO loan (Acc_no, loan_no, branch_name, amount) VALUES
+(1001, 5001, 'Pimpri', 15000.00),
+(1002, 5002, 'Akurdi', 20000.00),
+(1003, 5003, 'Baner', 30000.00);
+INSERT INTO borrower (cust_name, loan_no) VALUES
+('John Doe', 5001),
+('Jane Smith', 5002),
+('David Lee', 5003);
+SELECT DISTINCT branch_name FROM loan;
+SELECT loan_no FROM loan WHERE branch_name = 'Pimpri' AND amount > 12000;
+SELECT c.cust_name, l.loan_no, l.amount
+FROM customer c
+JOIN borrower b ON c.cust_name = b.cust_name
+JOIN loan l ON b.loan_no = l.loan_no;
+SELECT c.cust_name
+FROM customer c
+JOIN borrower b ON c.cust_name = b.cust_name
+JOIN loan l ON b.loan_no = l.loan_no
+WHERE l.branch_name = 'Akurdi'
+ORDER BY c.cust_name;
+SELECT DISTINCT cust_name
+FROM (
+    SELECT cust_name FROM depositor
+    UNION
+    SELECT cust_name FROM borrower
+) AS all_customers;
+SELECT DISTINCT d.cust_name
+FROM depositor d
+JOIN borrower b ON d.cust_name = b.cust_name;
+SELECT AVG(balance) AS avg_balance
+FROM account
+WHERE branch_name = 'Pimpri';
+SELECT branch_name, AVG(balance) AS avg_balance
+FROM account
+GROUP BY branch_name;
+SELECT branch_name
+FROM (
+    SELECT branch_name, AVG(balance) AS avg_balance
+    FROM account
+    GROUP BY branch_name
+) AS branch_avg
+WHERE avg_balance > 12000;
+SELECT SUM(amount) AS total_loan_amount
+FROM loan;
+
+
+
+
+
+//Explanation
+
+This SQL code sets up a database for a simple banking system and performs some queries on the data. Here’s a detailed breakdown:
+
+### Database Creation and Setup
+1. **Create the Database**:
+   ```sql
+   CREATE DATABASE bank_db;
+   USE bank_db;
+   ```
+   This creates a new database called `bank_db` and sets it as the active database.
+
+2. **Create Tables**:
+   The code defines several tables in the `bank_db` database:
+
+   - **branch**:
+     ```sql
+     CREATE TABLE branch (
+         branch_name VARCHAR(50) PRIMARY KEY,
+         branch_city VARCHAR(50) NOT NULL,
+         assets_amt DECIMAL(10, 2) NOT NULL
+     );
+     ```
+     Stores information about each branch with fields:
+     - `branch_name`: Branch name, unique (primary key).
+     - `branch_city`: City where the branch is located.
+     - `assets_amt`: Total assets in the branch.
+
+   - **customer**:
+     ```sql
+     CREATE TABLE customer (
+         cust_name VARCHAR(50) PRIMARY KEY,
+         cust_street VARCHAR(100),
+         cust_city VARCHAR(50)
+     );
+     ```
+     Stores customer details:
+     - `cust_name`: Customer name, unique (primary key).
+     - `cust_street`: Street address of the customer.
+     - `cust_city`: City of the customer.
+
+   - **account**:
+     ```sql
+     CREATE TABLE account (
+         Acc_no INT PRIMARY KEY,
+         branch_name VARCHAR(50),
+         balance DECIMAL(10, 2) NOT NULL CHECK (balance >= 0),
+         FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+     );
+     ```
+     Stores account details:
+     - `Acc_no`: Account number, unique (primary key).
+     - `branch_name`: Name of the branch where the account is held, linked to the `branch` table.
+     - `balance`: Account balance, must be non-negative.
+
+   - **depositor**:
+     ```sql
+     CREATE TABLE depositor (
+         cust_name VARCHAR(50),
+         acc_no INT,
+         PRIMARY KEY (cust_name, acc_no),
+         FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+         FOREIGN KEY (acc_no) REFERENCES account(Acc_no)
+     );
+     ```
+     Links customers to their accounts:
+     - `cust_name`: Customer’s name, foreign key linked to `customer`.
+     - `acc_no`: Account number, foreign key linked to `account`.
+     - Primary key is a combination of `cust_name` and `acc_no`.
+
+   - **loan**:
+     ```sql
+     CREATE TABLE loan (
+         Acc_no INT,
+         loan_no INT PRIMARY KEY,
+         branch_name VARCHAR(50),
+         amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
+         FOREIGN KEY (Acc_no) REFERENCES account(Acc_no),
+         FOREIGN KEY (branch_name) REFERENCES branch(branch_name)
+     );
+     ```
+     Stores loan details:
+     - `Acc_no`: Account number linked to the loan (optional, may represent a loan tied to an account).
+     - `loan_no`: Loan number, unique (primary key).
+     - `branch_name`: Branch name, linked to `branch`.
+     - `amount`: Loan amount, must be positive.
+
+   - **borrower**:
+     ```sql
+     CREATE TABLE borrower (
+         cust_name VARCHAR(50),
+         loan_no INT,
+         PRIMARY KEY (cust_name, loan_no),
+         FOREIGN KEY (cust_name) REFERENCES customer(cust_name),
+         FOREIGN KEY (loan_no) REFERENCES loan(loan_no)
+     );
+     ```
+     Links customers to their loans:
+     - `cust_name`: Customer name, linked to `customer`.
+     - `loan_no`: Loan number, linked to `loan`.
+     - Primary key is a combination of `cust_name` and `loan_no`.
+
+3. **Insert Sample Data**:
+   The code inserts sample data into each table to set up the initial database state.
+
+### Queries
+1. **List All Branch Names with Loans**:
+   ```sql
+   SELECT DISTINCT branch_name FROM loan;
+   ```
+   Retrieves unique branch names where loans exist.
+
+2. **Retrieve Loans in 'Pimpri' Branch with Amount > 12000**:
+   ```sql
+   SELECT loan_no FROM loan WHERE branch_name = 'Pimpri' AND amount > 12000;
+   ```
+   Returns loan numbers for loans in the Pimpri branch with amounts greater than 12000.
+
+3. **List Customers with Loans and Loan Details**:
+   ```sql
+   SELECT c.cust_name, l.loan_no, l.amount
+   FROM customer c
+   JOIN borrower b ON c.cust_name = b.cust_name
+   JOIN loan l ON b.loan_no = l.loan_no;
+   ```
+   Retrieves customer names, loan numbers, and loan amounts for all customers who have taken loans.
+
+4. **List Customer Names with Loans from 'Akurdi' Branch**:
+   ```sql
+   SELECT c.cust_name
+   FROM customer c
+   JOIN borrower b ON c.cust_name = b.cust_name
+   JOIN loan l ON b.loan_no = l.loan_no
+   WHERE l.branch_name = 'Akurdi'
+   ORDER BY c.cust_name;
+   ```
+   Retrieves customers with loans specifically from the Akurdi branch and orders them alphabetically.
+
+5. **List All Customers in `depositor` or `borrower` Tables**:
+   ```sql
+   SELECT DISTINCT cust_name
+   FROM (
+       SELECT cust_name FROM depositor
+       UNION
+       SELECT cust_name FROM borrower
+   ) AS all_customers;
+   ```
+   Retrieves unique customer names who are either depositors or borrowers.
+
+6. **List Customers who are Both Depositors and Borrowers**:
+   ```sql
+   SELECT DISTINCT d.cust_name
+   FROM depositor d
+   JOIN borrower b ON d.cust_name = b.cust_name;
+   ```
+   Retrieves customers who have both accounts and loans.
+
+7. **Average Balance of Accounts in 'Pimpri' Branch**:
+   ```sql
+   SELECT AVG(balance) AS avg_balance
+   FROM account
+   WHERE branch_name = 'Pimpri';
+   ```
+   Calculates the average account balance for accounts in the Pimpri branch.
+
+8. **Average Balance by Branch**:
+   ```sql
+   SELECT branch_name, AVG(balance) AS avg_balance
+   FROM account
+   GROUP BY branch_name;
+   ```
+   Retrieves average account balances grouped by branch.
+
+9. **Branches with Average Balance > 12000**:
+   ```sql
+   SELECT branch_name
+   FROM (
+       SELECT branch_name, AVG(balance) AS avg_balance
+       FROM account
+       GROUP BY branch_name
+   ) AS branch_avg
+   WHERE avg_balance > 12000;
+   ```
+   Retrieves branch names where the average balance exceeds 12000.
+
+10. **Total Loan Amount**:
+    ```sql
+    SELECT SUM(amount) AS total_loan_amount
+    FROM loan;
+    ```
+    Calculates the total loan amount across all branches and loans. 
+

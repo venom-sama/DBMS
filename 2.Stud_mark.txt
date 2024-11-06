@@ -1,0 +1,134 @@
+create database ps2;
+use ps2;
+create table stud_marks(name varchar(50) primary key,total_marks int);
+insert into stud_marks values("ABC",950),("PQR",1025),("XYZ",1350),("MNO",875),("GFG",750);
+create table result(roll int primary key,name varchar(50),class varchar(50),foreign key (name) references stud_marks(name));
+delimiter //
+create procedure grade1(IN p_name varchar(50))
+begin
+declare p_total int;
+declare p_class varchar (50);
+select total_marks into p_total from stud_marks where name=p_name;
+IF p_total >=990 and p_total<=1500 then
+set p_class='Distinction';
+elseif p_total>=900 and p_total<=989 then
+set p_class='First Class';
+elseif p_total>=825 and p_total<=899 then
+set p_class='Higher Second Class';
+else
+set p_class='Fail';
+end if;
+select p_class as class;
+end;
+//
+delimiter ;
+call grade1("ABC");
+call grade1("PQR");
+call grade1("GFG");
+
+
+
+
+This code creates a database called `ps2` and performs the following operations:
+
+### 1. Database and Table Setup
+1. **Create Database**:
+   ```sql
+   create database ps2;
+   use ps2;
+   ```
+   - Creates a new database named `ps2` and sets it as the active database.
+
+2. **Create `stud_marks` Table**:
+   ```sql
+   create table stud_marks(name varchar(50) primary key, total_marks int);
+   ```
+   - Defines a table `stud_marks` with columns:
+     - `name`: Stores student names, set as the primary key (unique for each student).
+     - `total_marks`: Stores the total marks scored by the student.
+
+3. **Insert Sample Data**:
+   ```sql
+   insert into stud_marks values("ABC",950),("PQR",1025),("XYZ",1350),("MNO",875),("GFG",750);
+   ```
+   - Inserts sample data into the `stud_marks` table.
+
+4. **Create `result` Table**:
+   ```sql
+   create table result(roll int primary key, name varchar(50), class varchar(50), foreign key (name) references stud_marks(name));
+   ```
+   - Defines another table `result` with columns:
+     - `roll`: Stores roll numbers, which is the primary key for this table.
+     - `name`: Stores student names, set as a foreign key linked to the `stud_marks` table.
+     - `class`: Stores the student's grade (Distinction, First Class, etc.).
+
+### 2. Stored Procedure `grade1`
+The stored procedure `grade1` calculates the grade of a student based on their total marks.
+
+1. **Define Delimiter**:
+   ```sql
+   delimiter //
+   ```
+   - Changes the delimiter to `//` to allow for multi-line statements in the procedure definition.
+
+2. **Create `grade1` Procedure**:
+   ```sql
+   create procedure grade1(IN p_name varchar(50))
+   begin
+   declare p_total int;
+   declare p_class varchar (50);
+   ```
+   - Defines a stored procedure `grade1` that takes one input parameter `p_name` (name of the student).
+   - Declares two local variables:
+     - `p_total`: To store the total marks of the student.
+     - `p_class`: To store the calculated grade based on the total marks.
+
+3. **Retrieve Total Marks and Determine Grade**:
+   ```sql
+   select total_marks into p_total from stud_marks where name=p_name;
+   ```
+   - Retrieves the `total_marks` of the student specified by `p_name` from the `stud_marks` table and stores it in `p_total`.
+
+4. **Calculate Grade Based on Total Marks**:
+   ```sql
+   IF p_total >=990 and p_total<=1500 then
+       set p_class='Distinction';
+   elseif p_total>=900 and p_total<=989 then
+       set p_class='First Class';
+   elseif p_total>=825 and p_total<=899 then
+       set p_class='Higher Second Class';
+   else
+       set p_class='Fail';
+   end if;
+   ```
+   - Uses conditional statements to assign a grade to `p_class` based on the following criteria:
+     - **Distinction**: Marks between 990 and 1500.
+     - **First Class**: Marks between 900 and 989.
+     - **Higher Second Class**: Marks between 825 and 899.
+     - **Fail**: Marks below 825.
+
+5. **Output the Grade**:
+   ```sql
+   select p_class as class;
+   ```
+   - Displays the grade for the given student.
+
+6. **End of Procedure and Reset Delimiter**:
+   ```sql
+   end;
+   //
+   delimiter ;
+   ```
+   - Ends the procedure definition and resets the delimiter to the default `;`.
+
+### 3. Calling the Procedure
+The procedure `grade1` is called for specific students:
+```sql
+call grade1("ABC");
+call grade1("PQR");
+call grade1("GFG");
+```
+- Each call retrieves and displays the grade for the specified student by name based on their total marks in the `stud_marks` table.
+
+### Summary
+This code sets up a database with student information, calculates grades based on total marks, and provides a way to check each student’s grade by calling the `grade1` procedure with the student’s name.

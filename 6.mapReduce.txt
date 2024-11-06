@@ -1,0 +1,86 @@
+use ass6;
+db.customer.insertMany([
+  { cid: 1, cname: "ABC", amount: 2000, product_name: "Iphone Charger" },
+  { cid: 2, cname: "XYZ", amount: 40000, product_name: "Iphone 13" },
+  { cid: 3, cname: "PQR", amount: 50000, product_name: "Samsung S23 FE" },
+  { cid: 4, cname: "MNO", amount: 55000, product_name: "Iphone 14" }
+]);
+var Mapfunction = function() { emit(this.cid, this.amount) };
+var Reducefunction = function(key, values) { return Array.sum(values) };
+db.customer.mapReduce(Mapfunction, Reducefunction, { out: "Customer_Summary" });
+db.Customer_Summary.find();
+
+
+
+
+
+//Explanation 
+This code demonstrates how to use the MongoDB `mapReduce` function to process data from the `customer` collection, performing aggregation to calculate the total amount for each `cid`. Here’s a step-by-step explanation:
+
+### 1. Database and Collection Setup
+
+1. **Switch to Database**:
+   ```javascript
+   use ass6;
+   ```
+   - Switches to the `ass6` database, creating it if it doesn’t already exist.
+
+2. **Insert Documents into `customer` Collection**:
+   ```javascript
+   db.customer.insertMany([
+     { cid: 1, cname: "ABC", amount: 2000, product_name: "Iphone Charger" },
+     { cid: 2, cname: "XYZ", amount: 40000, product_name: "Iphone 13" },
+     { cid: 3, cname: "PQR", amount: 50000, product_name: "Samsung S23 FE" },
+     { cid: 4, cname: "MNO", amount: 55000, product_name: "Iphone 14" }
+   ]);
+   ```
+   - Inserts multiple documents (records) into the `customer` collection. Each document includes:
+     - `cid`: Customer ID
+     - `cname`: Customer name
+     - `amount`: Amount spent on a product
+     - `product_name`: Name of the product purchased
+
+### 2. Define `mapReduce` Functions
+
+1. **Map Function**:
+   ```javascript
+   var Mapfunction = function() { emit(this.cid, this.amount) };
+   ```
+   - Defines a map function that is applied to each document in the `customer` collection.
+   - `emit(this.cid, this.amount)`: Emits a key-value pair where:
+     - `this.cid` is the `cid` (customer ID) of the current document.
+     - `this.amount` is the `amount` field of the current document.
+   - This essentially maps each customer ID (`cid`) to their corresponding amount.
+
+2. **Reduce Function**:
+   ```javascript
+   var Reducefunction = function(key, values) { return Array.sum(values) };
+   ```
+   - Defines a reduce function that is used to aggregate the results of the map function.
+   - `key`: The key emitted by the map function (`cid`).
+   - `values`: An array of all amounts associated with a particular customer ID.
+   - `Array.sum(values)`: Sums up all values in the `values` array, which gives the total amount for each `cid`.
+
+### 3. Run `mapReduce`
+
+1. **Execute `mapReduce` Operation**:
+   ```javascript
+   db.customer.mapReduce(Mapfunction, Reducefunction, { out: "Customer_Summary" });
+   ```
+   - Executes the `mapReduce` operation on the `customer` collection with `Mapfunction` and `Reducefunction`.
+   - `{ out: "Customer_Summary" }`: Specifies the output collection for the results of the `mapReduce` operation, which is named `Customer_Summary`.
+
+### 4. View Results
+
+1. **Query the Result Collection**:
+   ```javascript
+   db.Customer_Summary.find();
+   ```
+   - Retrieves and displays all documents in the `Customer_Summary` collection.
+   - Each document in `Customer_Summary` contains:
+     - `_id`: The customer ID (`cid`).
+     - `value`: The total amount associated with that `cid`.
+
+### Summary
+
+This code calculates and stores the total purchase amount for each customer ID in a new collection, `Customer_Summary`, using the `mapReduce` function in MongoDB. This approach can be helpful for performing more complex aggregations and data transformations.

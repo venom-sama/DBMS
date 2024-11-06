@@ -1,0 +1,152 @@
+use ass4;
+db.Teachers.insertMany([
+  { Tname: "SSS", dno: 4, dname: "CS", experience: 13, salary: 35000, date_of_joining: "23.6.2020" },
+  { Tname: "VK", dno: 5, dname: "IT", experience: 10, salary: 25000, date_of_joining: "12.5.2018" },
+  { Tname: "JB", dno: 6, dname: "ENTC", experience: 2, salary: 9000, date_of_joining: "22.4.2022" },
+  { Tname: "XYZ", dno: 5, dname: "IT", experience: 11, salary: 15000, date_of_joining: "23.6.2015" },
+  { Tname: "PQR", dno: 4, dname: "CS", experience: 8, salary: 5000, date_of_joining: "7.9.2012" }
+]);
+db.Teachers.find();
+db.Students.insertMany([
+  { Sname: "ABCD", rollno: 5, class: 9 },
+  { Sname: "PQRS", rollno: 2, class: 10 },
+  { Sname: "Rahul", rollno: 12, class: 9 }
+]);
+db.Teachers.find().sort({ Tname: 1 });
+db.Teachers.find({ dname: "CS" });
+db.Teachers.find({ dname: { $in: ["CS", "IT", "ENTC"] } });
+db.Teachers.find({ dname: { $in: ["CS", "IT", "ENTC"] }, salary: { $gte: 10000 } });
+db.Students.find({ $or: [{ Sname: "PQRS" }, { rollno: 2 }] });
+db.Teachers.update(
+  { Tname: "Praveen" },
+  { $set: { experience: 10 } },
+  { upsert: true }
+);
+db.Teachers.update(
+  { dname: "IT" },
+  { $set: { dname: "CS" } },
+  { multi: true }
+);
+db.Teachers.find({}, { Tname: 1, experience: 1 });
+db.Teachers.remove({ dname: "IT" });
+
+
+
+//Explanation
+
+This code demonstrates various MongoDB operations for inserting, querying, updating, and deleting documents in collections named `Teachers` and `Students`. Here’s a breakdown:
+
+### 1. Database and Collection Setup
+
+1. **Select Database**:
+   ```javascript
+   use ass4;
+   ```
+   - Switches to the `ass4` database. If it doesn’t exist, MongoDB creates it.
+
+2. **Insert Documents into `Teachers` Collection**:
+   ```javascript
+   db.Teachers.insertMany([
+       { Tname: "SSS", dno: 4, dname: "CS", experience: 13, salary: 35000, date_of_joining: "23.6.2020" },
+       { Tname: "VK", dno: 5, dname: "IT", experience: 10, salary: 25000, date_of_joining: "12.5.2018" },
+       { Tname: "JB", dno: 6, dname: "ENTC", experience: 2, salary: 9000, date_of_joining: "22.4.2022" },
+       { Tname: "XYZ", dno: 5, dname: "IT", experience: 11, salary: 15000, date_of_joining: "23.6.2015" },
+       { Tname: "PQR", dno: 4, dname: "CS", experience: 8, salary: 5000, date_of_joining: "7.9.2012" }
+   ]);
+   ```
+   - Adds multiple teacher documents to the `Teachers` collection, each with attributes:
+     - `Tname`: Teacher's name
+     - `dno`: Department number
+     - `dname`: Department name
+     - `experience`: Years of experience
+     - `salary`: Salary amount
+     - `date_of_joining`: Joining date
+
+3. **View All Documents in `Teachers`**:
+   ```javascript
+   db.Teachers.find();
+   ```
+   - Retrieves and displays all documents in the `Teachers` collection.
+
+4. **Insert Documents into `Students` Collection**:
+   ```javascript
+   db.Students.insertMany([
+       { Sname: "ABCD", rollno: 5, class: 9 },
+       { Sname: "PQRS", rollno: 2, class: 10 },
+       { Sname: "Rahul", rollno: 12, class: 9 }
+   ]);
+   ```
+   - Adds multiple student documents to the `Students` collection, each with attributes:
+     - `Sname`: Student's name
+     - `rollno`: Roll number
+     - `class`: Class number
+
+### 2. Querying Data
+
+1. **Sort `Teachers` by Name**:
+   ```javascript
+   db.Teachers.find().sort({ Tname: 1 });
+   ```
+   - Retrieves and displays all documents in `Teachers`, sorted alphabetically by `Tname` in ascending order.
+
+2. **Find Teachers in CS Department**:
+   ```javascript
+   db.Teachers.find({ dname: "CS" });
+   ```
+   - Finds all documents in `Teachers` where `dname` is `"CS"`.
+
+3. **Find Teachers in Specific Departments**:
+   ```javascript
+   db.Teachers.find({ dname: { $in: ["CS", "IT", "ENTC"] } });
+   ```
+   - Retrieves teachers who work in the `"CS"`, `"IT"`, or `"ENTC"` departments using the `$in` operator.
+
+4. **Find Teachers with Minimum Salary in Specific Departments**:
+   ```javascript
+   db.Teachers.find({ dname: { $in: ["CS", "IT", "ENTC"] }, salary: { $gte: 10000 } });
+   ```
+   - Finds teachers who work in `"CS"`, `"IT"`, or `"ENTC"` departments and have a salary of at least 10,000, using the `$gte` (greater than or equal) operator.
+
+5. **Find Student by Name or Roll Number**:
+   ```javascript
+   db.Students.find({ $or: [{ Sname: "PQRS" }, { rollno: 2 }] });
+   ```
+   - Retrieves students where either `Sname` is `"PQRS"` or `rollno` is `2`, using the `$or` operator.
+
+### 3. Updating Data
+
+1. **Update Teacher's Experience or Insert New Teacher**:
+   ```javascript
+   db.Teachers.update(
+       { Tname: "Praveen" },
+       { $set: { experience: 10 } },
+       { upsert: true }
+   );
+   ```
+   - Updates the experience of a teacher named `"Praveen"` to `10` if found. If not found, inserts a new document with `Tname: "Praveen"` and `experience: 10` because of the `upsert: true` option.
+
+2. **Update Department Name for Multiple Teachers**:
+   ```javascript
+   db.Teachers.update(
+       { dname: "IT" },
+       { $set: { dname: "CS" } },
+       { multi: true }
+   );
+   ```
+   - Changes `dname` from `"IT"` to `"CS"` for all matching records in `Teachers`, using the `multi: true` option to allow multiple updates.
+
+3. **Retrieve Selected Fields in `Teachers`**:
+   ```javascript
+   db.Teachers.find({}, { Tname: 1, experience: 1 });
+   ```
+   - Displays only `Tname` and `experience` fields for all teachers, excluding other fields by default.
+
+### 4. Deleting Data
+
+1. **Remove Teachers in IT Department**:
+   ```javascript
+   db.Teachers.remove({ dname: "IT" });
+   ```
+   - Deletes all documents in `Teachers` where `dname` is `"IT"`.
+
+This script demonstrates essential MongoDB operations like data insertion, querying with filters and conditions, updating documents (with options for inserting or modifying multiple records), and removing documents.
