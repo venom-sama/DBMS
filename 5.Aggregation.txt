@@ -1,3 +1,23 @@
+                                                          Problem Statement: -5
+                                                          MongoDB Aggregation
+                                                          You have been given a dataset containing details about different books. Each book has the
+                                                          following fields:
+                                                          ● title: The title of the book
+                                                          ● author: The author of the book
+                                                          ● genre: The genre of the book (e.g., Fiction, Non-Fiction, Mystery, Sci-Fi)
+                                                          ● price: The price of the book
+                                                          ● published_date: The date the book was published.
+                                                          The data has been stored in a MongoDB collection named books.
+                                                          Using the MongoDB aggregation framework, perform the following tasks:
+                                                          1. Find the average price of all books.
+                                                          2. Find the count of books in each genre.
+                                                          3. For each genre, find the most expensive book.
+                                                          4. Find the authors who have written maximum books.
+                                                          5. Sort the books by published_date in descending order.
+                                                          6. Sort the price in ascending order.
+                                                          7. create an index on title of the book and describe the index details
+                                                          
+
 use ass5;
 db.Books.insertMany([
   {
