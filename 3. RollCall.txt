@@ -1,3 +1,9 @@
+                                                               Problem Statement:-3
+                                                               1. Write a PL/SQL block of code using parameterized Cursor that will merge the data available
+                                                               in the newly created table N_Roll_Call with the data available in the table O_Roll_Call. If the
+                                                               data in the first table already exists in the second table then that data should be skipped
+
+
 create database rollcal;
 use rollcal;
 create table oldRollCall(rno int primary key,name varchar(20));
