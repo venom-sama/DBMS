@@ -1,3 +1,13 @@
+                                                            Problem Statement: -8
+                                                            Develop a student database to efficiently manage and retrieve student records (Student id,
+                                                            Student Name, Class, address, grades, and enrolment details, subject name, attendance.
+                                                            ● Create Views to provide summarized insights into student performance and
+                                                            attendance. (Consider the attributes which shows attendance of students while
+                                                            creating view)
+                                                            ● Create Sequences to generate unique student IDs.
+                                                            ● Create an index on a table using student name.
+
+
 CREATE DATABASE ps8;
 USE ps8;
 CREATE TABLE student_records (
